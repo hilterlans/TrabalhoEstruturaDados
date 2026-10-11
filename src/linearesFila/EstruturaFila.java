@@ -2,7 +2,7 @@ package linearesFila;
 public class EstruturaFila {
     public class Fila<T> {
 
-        // Nó interno da fila
+        // Nó interno da filaa
         private static class No<T> {
             T dado;
             No<T> proximo;
