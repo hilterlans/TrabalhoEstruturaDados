@@ -1,9 +1,13 @@
 package linearesFila.Questao2;
 
-
 import linearesFila.EstruturaFila;
 
+/**
+ * Laboratório de informática: gerencia a fila de impressão (FIFO).
+ * Complexidade: enviar e imprimir são O(1); listar e cancelar último são O(n).
+ */
 public class Informatica {
+    // Fila não é static, então precisa de uma instância de EstruturaFila
     private EstruturaFila estrutura = new EstruturaFila();
     private EstruturaFila.Fila<Alunos> fila;
     private int totalImpresso = 0;       // total de páginas impressas
@@ -22,6 +26,7 @@ public class Informatica {
         fila.enqueue(trabalho);
         System.out.println("Enviado: " + trabalho);
     }
+
     // Imprimir próximo (sai da frente da fila)
     public Alunos imprimirProximo() {
         if (fila.isEmpty()) {
@@ -34,33 +39,30 @@ public class Informatica {
         System.out.println("Imprimindo: " + t);
         return t;
     }
+
     // Listar a fila sem perder a ordem original
     public void listarFila() {
         if (fila.isEmpty()) {
             System.out.println("Fila vazia.");
             return;
         }
+        // Gira a fila: tira da frente, imprime e recoloca no final.
+        // Após size() voltas, a ordem original está preservada.
         int n = fila.size();
         for (int i = 0; i < n; i++) {
             Alunos t = fila.dequeue();
             System.out.println((i + 1) + ". " + t);
-            fila.enqueue(t); // volta para o final, mantendo a ordem
+            fila.enqueue(t);
         }
     }
 
-    // Cancelar o último trabalho enviado (usa fila auxiliar)
+    // Cancelar o último trabalho enviado (usa removerUltimo da Fila, O(n))
     public void cancelarUltimo() {
         if (fila.isEmpty()) {
             System.out.println("Nenhum trabalho para cancelar.");
             return;
         }
-        EstruturaFila.Fila<Alunos> aux = estrutura.new Fila<>();
-        int n = fila.size();
-        for (int i = 0; i < n - 1; i++) {
-            aux.enqueue(fila.dequeue());
-        }
-        Alunos cancelado = fila.dequeue(); // o último da fila
-        fila = aux;
+        Alunos cancelado = fila.removerUltimo();
         System.out.println("Cancelado: " + cancelado);
     }
 
@@ -80,4 +82,3 @@ public class Informatica {
         return trabalhosImpressos;
     }
 }
-
