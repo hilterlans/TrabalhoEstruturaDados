@@ -1,18 +1,13 @@
 package linearesLista.Questao6;
+import java.util.Objects;
 
 public class Produto {
-    private final String codigo;
+    private String codigo;
     private String nome;
     private int quantidade;
     private double preco;
 
     public Produto(String codigo, String nome, int quantidade, double preco) {
-        if (codigo == null || codigo.isBlank() || nome == null || nome.isBlank()) {
-            throw new IllegalArgumentException("Codigo e nome sao obrigatorios.");
-        }
-        if (quantidade < 0 || preco < 0) {
-            throw new IllegalArgumentException("Quantidade e preco nao podem ser negativos.");
-        }
         this.codigo = codigo;
         this.nome = nome;
         this.quantidade = quantidade;
@@ -20,28 +15,19 @@ public class Produto {
     }
 
     public String getCodigo() { return codigo; }
-    public String getNome() { return nome; }
     public int getQuantidade() { return quantidade; }
-    public double getPreco() { return preco; }
+    public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
 
-    public void setNome(String nome) {
-        if (nome == null || nome.isBlank()) throw new IllegalArgumentException("Nome invalido.");
-        this.nome = nome;
-    }
-
-    public void setQuantidade(int quantidade) {
-        if (quantidade < 0) throw new IllegalArgumentException("Quantidade nao pode ser negativa.");
-        this.quantidade = quantidade;
-    }
-
-    public void setPreco(double preco) {
-        if (preco < 0) throw new IllegalArgumentException("Preco nao pode ser negativo.");
-        this.preco = preco;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Produto produto = (Produto) obj;
+        return Objects.equals(codigo, produto.codigo);
     }
 
     @Override
     public String toString() {
-        return String.format("Codigo: %s | Produto: %s | Quantidade: %d | Preco: R$ %.2f",
-                codigo, nome, quantidade, preco);
+        return "[" + codigo + "] " + nome + " - Qtd: " + quantidade + " - R$" + preco;
     }
 }
