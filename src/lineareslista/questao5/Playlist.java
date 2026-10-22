@@ -1,23 +1,26 @@
+
 package lineareslista.questao5;
 
+import lineareslista.EstruturaLista;
+
 public class Playlist {
-    private No inicio;
+
+    private EstruturaLista<Musica> musicas;
     private int tamanho;
+
+    public Playlist() {
+        this.musicas = new EstruturaLista<>();
+        this.tamanho = 0;
+    }
 
     public void adicionarMusica(Musica musica) {
         if (musica == null) {
-            throw new IllegalArgumentException("A musica nao pode ser nula.");
+            throw new IllegalArgumentException(
+                    "A musica nao pode ser nula."
+            );
         }
-        No novo = new No(musica);
-        if (inicio == null) {
-            inicio = novo;
-        } else {
-            No atual = inicio;
-            while (atual.proximo != null) {
-                atual = atual.proximo;
-            }
-            atual.proximo = novo;
-        }
+
+        musicas.inserirFim(musica);
         tamanho++;
     }
 
@@ -25,78 +28,105 @@ public class Playlist {
         if (musica == null || posicao < 0 || posicao > tamanho) {
             return false;
         }
-        No novo = new No(musica);
-        if (posicao == 0) {
-            novo.proximo = inicio;
-            inicio = novo;
-        } else {
-            No anterior = obterNo(posicao - 1);
-            novo.proximo = anterior.proximo;
-            anterior.proximo = novo;
-        }
+
+        musicas.inserirPosicao(musica, posicao);
         tamanho++;
         return true;
     }
 
     public Musica removerPorTitulo(String titulo) {
-        if (titulo == null || inicio == null) {
+        if (titulo == null) {
             return null;
         }
-        if (inicio.musica.getTitulo().equalsIgnoreCase(titulo)) {
-            Musica removida = inicio.musica;
-            inicio = inicio.proximo;
-            tamanho--;
-            return removida;
-        }
 
-        No anterior = inicio;
-        No atual = inicio.proximo;
+        EstruturaLista<Musica>.No atual = musicas.getCabeca();
+        EstruturaLista<Musica>.No alvo = null;
+
+        // Encontra a primeira musica com o titulo informado.
         while (atual != null) {
-            if (atual.musica.getTitulo().equalsIgnoreCase(titulo)) {
-                anterior.proximo = atual.proximo;
-                tamanho--;
-                return atual.musica;
+            if (atual.dado.getTitulo() != null
+                    && atual.dado.getTitulo().equalsIgnoreCase(titulo)) {
+                alvo = atual;
+                break;
             }
-            anterior = atual;
+
             atual = atual.proximo;
         }
-        return null;
+
+        if (alvo == null) {
+            return null;
+        }
+
+        Musica removida = alvo.dado;
+        EstruturaLista<Musica> novaLista = new EstruturaLista<>();
+
+        atual = musicas.getCabeca();
+
+        // Reconstrói a lista sem o nó encontrado.
+        while (atual != null) {
+            if (atual != alvo) {
+                novaLista.inserirFim(atual.dado);
+            }
+
+            atual = atual.proximo;
+        }
+
+        musicas = novaLista;
+        tamanho--;
+
+        return removida;
     }
 
     public Musica buscarPorTitulo(String titulo) {
         if (titulo == null) {
             return null;
         }
-        No atual = inicio;
+
+        EstruturaLista<Musica>.No atual = musicas.getCabeca();
+
         while (atual != null) {
-            if (atual.musica.getTitulo().equalsIgnoreCase(titulo)) {
-                return atual.musica;
+            Musica musica = atual.dado;
+
+            if (musica.getTitulo() != null
+                    && musica.getTitulo().equalsIgnoreCase(titulo)) {
+                return musica;
             }
+
             atual = atual.proximo;
         }
+
         return null;
     }
 
     public boolean moverMusica(String titulo, int novaPosicao) {
-        if (titulo == null || novaPosicao < 0 || novaPosicao >= tamanho) {
+        if (titulo == null || novaPosicao < 0
+                || novaPosicao >= tamanho) {
             return false;
         }
+
         Musica musica = removerPorTitulo(titulo);
+
         if (musica == null) {
             return false;
         }
-        return inserirNaPosicao(musica, Math.min(novaPosicao, tamanho));
+
+        return inserirNaPosicao(
+                musica,
+                Math.min(novaPosicao, tamanho)
+        );
     }
 
     public void listarMusicas() {
-        if (inicio == null) {
+        if (musicas.getCabeca() == null) {
             System.out.println("Playlist vazia.");
             return;
         }
-        No atual = inicio;
+
+        EstruturaLista<Musica>.No atual = musicas.getCabeca();
         int indice = 1;
+
         while (atual != null) {
-            System.out.println(indice + ". " + atual.musica);
+            System.out.println(indice + ". " + atual.dado);
             atual = atual.proximo;
             indice++;
         }
@@ -108,13 +138,5 @@ public class Playlist {
 
     public boolean estaVazia() {
         return tamanho == 0;
-    }
-
-    private No obterNo(int posicao) {
-        No atual = inicio;
-        for (int i = 0; i < posicao; i++) {
-            atual = atual.proximo;
-        }
-        return atual;
     }
 }
