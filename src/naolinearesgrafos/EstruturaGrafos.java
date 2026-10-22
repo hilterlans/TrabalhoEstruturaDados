@@ -10,6 +10,7 @@
  *   - adicionarAresta ......... O(1)
  *   - indiceDe (busca nome) ... O(V)
  *   - Dijkstra (vetor simples)  O(V²) tempo, O(V) espaço extra
+ *   - BFS (menor nº de saltos)  O(V + E) tempo, O(V) espaço extra
  *   - Espaço total do grafo ... O(V + E)
  */
 package naolinearesgrafos;
@@ -134,6 +135,33 @@ public class EstruturaGrafos {
         return -1;
     }
 
+    /** Indica se existe aresta saindo de origem e chegando em destino. O(grau). */
+    public boolean temAresta(String origem, String destino) {
+        int a = indiceObrigatorio(origem);
+        int b = indiceObrigatorio(destino);
+        for (Aresta atual = adjacencia[a]; atual != null; atual = atual.proxima) {
+            if (atual.destino == b) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Nomes dos vizinhos diretos de um vértice (ordem de inserção inversa). O(grau). */
+    public String[] vizinhosDe(String nome) {
+        int v = indiceObrigatorio(nome);
+        int grau = 0;
+        for (Aresta atual = adjacencia[v]; atual != null; atual = atual.proxima) {
+            grau++;
+        }
+        String[] vizinhos = new String[grau];
+        int i = 0;
+        for (Aresta atual = adjacencia[v]; atual != null; atual = atual.proxima) {
+            vizinhos[i++] = nomes[atual.destino];
+        }
+        return vizinhos;
+    }
+
     /** Imprime a lista de adjacência: vértice -> [vizinho (peso), ...]. */
     public void imprimirListaDeAdjacencia() {
         for (int i = 0; i < totalVertices; i++) {
@@ -152,6 +180,56 @@ public class EstruturaGrafos {
             }
             System.out.println(linha);
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Busca em largura (BFS) - menor número de saltos, ignorando pesos
+    // ------------------------------------------------------------------
+
+    /**
+     * Caminho com o MENOR NÚMERO DE ARESTAS entre dois vértices (BFS).
+     * O custo devolvido é o número de saltos (graus de separação).
+     * Retorna null se o destino não for alcançável.
+     */
+    public Caminho menorCaminhoPorSaltos(String origem, String destino) {
+        int s = indiceObrigatorio(origem);
+        int t = indiceObrigatorio(destino);
+
+        int[] anterior = new int[totalVertices];
+        int[] nivel = new int[totalVertices];
+        for (int i = 0; i < totalVertices; i++) {
+            anterior[i] = -1;
+            nivel[i] = -1;
+        }
+
+        // Fila circular simples feita com vetor (cada vértice entra no máximo 1 vez).
+        int[] fila = new int[totalVertices];
+        int inicio = 0;
+        int fim = 0;
+        fila[fim++] = s;
+        nivel[s] = 0;
+
+        while (inicio < fim && nivel[t] == -1) {
+            int u = fila[inicio++];
+            for (Aresta a = adjacencia[u]; a != null; a = a.proxima) {
+                if (nivel[a.destino] == -1) {
+                    nivel[a.destino] = nivel[u] + 1;
+                    anterior[a.destino] = u;
+                    fila[fim++] = a.destino;
+                }
+            }
+        }
+
+        if (nivel[t] == -1) {
+            return null;
+        }
+
+        String[] rota = new String[nivel[t] + 1];
+        int posicao = rota.length - 1;
+        for (int v = t; v != -1; v = anterior[v]) {
+            rota[posicao--] = nomes[v];
+        }
+        return new Caminho(nivel[t], rota);
     }
 
     // ------------------------------------------------------------------
